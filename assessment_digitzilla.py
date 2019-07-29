@@ -1,7 +1,25 @@
-from flask import Flask, render_template, url_for, flash, redirect, request
+from flask import Flask, render_template, url_for, flash, redirect, request, session
 from forms import LoginForm
 from flask_mysqldb import MySQL
 import yaml
+import re
+
+
+
+import re
+
+
+def is_valid_email(email):
+    if len(email) > 7:
+        return bool(re.match("^.+@(\[?)[a-zA-Z0-9-.]+.([a-zA-Z]{2,3}|[0-9]{1,3})(]?)$", email))
+
+def is_valid_password(password):
+    if len(password)>6:
+        return True
+    else:
+        return False
+
+
 
 
 app = Flask(__name__)
@@ -32,6 +50,16 @@ def login():
         user_details = request.form
         email = user_details['email']
         password = user_details['password']
+
+
+        ## Server Side Validating
+        if not is_valid_email(email):
+            return "You entered an invalid form of email"
+
+        if not is_valid_password(password):
+            return "You entered an invalid form of password"
+
+            
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO users(email, password) VALUES(%s, %s)", (email, password))
         mysql.connection.commit()
