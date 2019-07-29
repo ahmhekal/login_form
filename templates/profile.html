@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>profile</title>
+  </head>
+  <body>
+
+
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages%}
+          {%for category, message in messages%}
+            <div>
+              {{message}}
+            </div>
+          {%endfor%}
+        {%endif%}
+      {% endwith %}
+      {% block content %}{%endblock%}
+
+
+
+      <h1> your profile page </h1>
+
+      {%for user in user_details%}
+      <p> your name is {{user[0]}} </p>
+      <p> your email is :  {{user[1]}} </p>
+      <p> your password is :  {{user[2]}}</p>
+      {%endfor%}
+
+
+  </body>
+</html>
