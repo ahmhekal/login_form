@@ -1,11 +1,10 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, session
-from forms import LoginForm
 from flask_mysqldb import MySQL
 import yaml
 import re
-
-
-
+from flask_mail import Mail, Message
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import os
 import re
 
 
@@ -21,8 +20,35 @@ def is_valid_password(password):
 
 
 
+def get_reset_token(id, expires_sec=1800):
+    s = Serializer(app.config['SECRET_KEY'], expires_sec)
+    return s.dumps({'user_id': id}).decode('utf-8')
+
+def verify_reset_token(token):
+    s = Serializer(app.config['SECRET_KEY'])
+    try:
+        user_id = s.loads(token)['user_id']
+    except:
+        return None
+    return user_id
+
 
 app = Flask(__name__)
+
+
+app.config['SECRET_KEY'] = '5f3e5b6f4c33f8e5ef8b9c24187b3f1c'
+app.config.update(dict(
+    DEBUG = True,
+    MAIL_SERVER = 'smtp.gmail.com',
+    MAIL_PORT = 587,
+    MAIL_USE_TLS = True,
+    MAIL_USE_SSL = False,
+    MAIL_USERNAME = 'hekaltesttask@gmail.com',
+    MAIL_PASSWORD = 'hekaltesttask123',
+))
+
+mail = Mail(app)
+
 
 #Database configuration
 db = yaml.load(open('db.yaml'))
@@ -41,11 +67,6 @@ app.config['SECRET_KEY']  = '5f3e5b6f4c33f8e5ef8b9c24187b3f1c' #any random token
 @app.route('/', methods=['GET','POST'])
 @app.route('/login', methods=['GET','POST'])
 def login():
-    form = LoginForm() #instance from login form
-
-#    if form.validate_on_submit():
-#        flash(f'Successfully login for {form.email.data}!', 'sucess')
-
     if request.method =='POST':
         user_details = request.form
         email = user_details['email']
@@ -59,14 +80,24 @@ def login():
         if not is_valid_password(password):
             return "You entered an invalid form of password"
 
-            
+
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO users(email, password) VALUES(%s, %s)", (email, password))
+
+
+        ret=cur.execute("SELECT * FROM users WHERE email=%s and password =%s", (email, password))
+        user_details = cur.fetchall()
         mysql.connection.commit()
         cur.close()
-        return render_template('success.html', email=email)
+
+
+        if ret:
+            return render_template('success.html', email=email)
+        else :
+            return ('you entered an invalid data')
+
+
     #return redirect(url_for('profile'))
-    return render_template('login.html', form=form)
+    return render_template('login.html')
 
 
 @app.route('/profile')
@@ -77,6 +108,71 @@ def profile():
         user_details = cur.fetchall()
         return render_template('profile.html', user_details=user_details)
 
+
+
+def send_email(user):
+    token = get_reset_token(user)
+    msg = Message('Pasword reset link', sender='noreply@digitzillatask.com', recipients=[user])
+    print('correct2')
+
+    msg.body = f''' To reset your password, visit the following link:
+
+{url_for('request_password', token=token, _external=True)}
+
+    '''
+    print('correct3',user)
+
+    mail.send(msg)
+
+@app.route('/reset_password', methods=['GET','POST'])
+def reset_password():
+
+    if request.method =='POST':
+        user_details = request.form
+        email = user_details['email']
+
+        cur = mysql.connection.cursor()
+        ret=cur.execute("SELECT * FROM users WHERE email= %s", [email])
+        user_details = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
+
+        print('correct')
+
+
+        if ret:
+            send_email(email)
+            return render_template('success2.html', email=email)
+        else :
+            return ('Your email is not registered')
+
+    return render_template('reset_password.html')
+
+
+@app.route('/reset_password/<token>', methods=['GET','POST'])
+def request_password(token):
+    user=verify_reset_token(token)
+    if not user:
+        return ('That is an invalid token')
+
+    if request.method =='POST':
+        passwords = request.form
+        password = passwords['password']
+        repassword = passwords['repassword']
+
+        if password != repassword:
+            return 'the two passwords don\'t match.. try again'
+
+        if not is_valid_password(password):
+            return "You entered an invalid form of password"
+
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE users SET password = %s WHERE email = %s", (password, user))
+        mysql.connection.commit()
+        cur.close()
+        return ('Your Password has been changed successfully')
+
+    return render_template('request_password.html')
 
 
 
