@@ -1,6 +1,5 @@
 from flask import Flask, render_template, url_for, flash, redirect, request, session,Blueprint, make_response
 from flask_mysqldb import MySQL
-import yaml
 import re
 from flask_mail import Mail, Message
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -64,11 +63,10 @@ mail = Mail(app)
 
 
 #Database configuration
-db = yaml.load(open('db.yaml'))
-app.config['MYSQL_HOST'] = db['mysql_host']
-app.config['MYSQL_USER'] = db['mysql_user']
-app.config['MYSQL_PASSWORD'] = db['mysql_password']
-app.config['MYSQL_DB'] = db['mysql_db']
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '1234'
+app.config['MYSQL_DB'] = 'flaskdatabase'
 
 mysql = MySQL(app)
 
