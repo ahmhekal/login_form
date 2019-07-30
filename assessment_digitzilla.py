@@ -19,7 +19,6 @@ def is_valid_password(password):
         return False
 
 
-
 def get_reset_token(id, expires_sec=1800):
     s = Serializer(app.config['SECRET_KEY'], expires_sec)
     return s.dumps({'user_id': id}).decode('utf-8')
@@ -32,6 +31,15 @@ def verify_reset_token(token):
         return None
     return user_id
 
+
+
+def get_session():
+    if 'user' in session:
+        return session['user']
+    return 0
+
+def drop_session():
+    session.pop('user')
 
 app = Flask(__name__)
 
@@ -63,7 +71,6 @@ mysql = MySQL(app)
 app.config['SECRET_KEY']  = '5f3e5b6f4c33f8e5ef8b9c24187b3f1c' #any random token for security
 
 
-
 @app.route('/', methods=['GET','POST'])
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -72,17 +79,16 @@ def login():
         email = user_details['email']
         password = user_details['password']
 
-
         ## Server Side Validating
         if not is_valid_email(email):
-            return "You entered an invalid form of email"
+            flash(f'You entered an invalid form of email, it must be like \' example@example.example \' ')
+            return redirect(url_for('login'))
 
         if not is_valid_password(password):
-            return "You entered an invalid form of password"
-
+            flash(f'You entered an invalid password')
+            return redirect(url_for('login'))
 
         cur = mysql.connection.cursor()
-
 
         ret=cur.execute("SELECT * FROM users WHERE email=%s and password =%s", (email, password))
         user_details = cur.fetchall()
@@ -91,22 +97,39 @@ def login():
 
 
         if ret:
-            return render_template('success.html', email=email)
+            session['user'] = email
+            return render_template('success.html')
         else :
-            return ('you entered an invalid data')
+            flash(f'you entered an invalid data, try again')
+            return redirect(url_for('login'))
+
+    ret=get_session()
+    if ret != 0:
+        return redirect(url_for('profile'))
+    else:
+        return render_template('login.html')
 
 
-    #return redirect(url_for('profile'))
-    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    ret=get_session()
+    if ret != 0:
+        drop_session()
+    return redirect(url_for('login'))
 
 
 @app.route('/profile')
 def profile():
-    cur = mysql.connection.cursor()
-    ret = cur.execute('SELECT * FROM users')
-    if ret > 0:
+    ret=get_session()
+    if ret != 0:
+        cur = mysql.connection.cursor()
+        user_details=cur.execute("SELECT * FROM users WHERE email=%s", [ret])
         user_details = cur.fetchall()
+        mysql.connection.commit()
+        cur.close()
         return render_template('profile.html', user_details=user_details)
+    else:
+        return redirect(url_for('login'))
 
 
 
@@ -118,7 +141,7 @@ def send_email(user):
     msg.body = f''' To reset your password, visit the following link:
 
 {url_for('request_password', token=token, _external=True)}
-
+please note that this link will expire after 30 minutes.
     '''
     print('correct3',user)
 
@@ -139,7 +162,6 @@ def reset_password():
 
         print('correct')
 
-
         if ret:
             send_email(email)
             return render_template('success2.html', email=email)
@@ -153,7 +175,8 @@ def reset_password():
 def request_password(token):
     user=verify_reset_token(token)
     if not user:
-        return ('That is an invalid token')
+        flash(f'That is an invalid or an expired token, please login again')
+        return redirect(url_for('login'))
 
     if request.method =='POST':
         passwords = request.form
@@ -161,16 +184,19 @@ def request_password(token):
         repassword = passwords['repassword']
 
         if password != repassword:
-            return 'the two passwords don\'t match.. try again'
+            flash(f'The two passwords do not match, try again')
+            return redirect(url_for('request_password', token=token))
 
         if not is_valid_password(password):
-            return "You entered an invalid form of password"
+            flash(f'You entered an invalid form of password, try again')
+            return redirect(url_for('request_password', token=token))
+
 
         cur = mysql.connection.cursor()
         cur.execute("UPDATE users SET password = %s WHERE email = %s", (password, user))
         mysql.connection.commit()
         cur.close()
-        return ('Your Password has been changed successfully')
+        return render_template('password_reset_success.html')
 
     return render_template('request_password.html')
 

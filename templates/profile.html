@@ -1,34 +1,51 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>profile</title>
-  </head>
-  <body>
+
+
+<html>
+    <head>
+        <title>profile</title>
+        <meta charset="utf-8">
+
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login.css') }}">
+    </head>
+    <body>
 
 
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages%}
-          {%for category, message in messages%}
-            <div>
-              {{message}}
+
+
+
+
+        <div class="container">
+
+            <div class="box" >
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages%}
+                        {%for category, message in messages%}
+                          <h1>
+                            {{message}}
+                          </h1>
+                        {%endfor%}
+                      {%endif%}
+                    {% endwith %}
+                    {% block content %}{%endblock%}
+
+
+                <h1>Your profile page</h1>
+                <br>
+                {%for user in user_details%}
+                <h2> your name : {{user[0]}} </h2>
+                <h2> your email :  {{user[1]}} </h2>
+                <h2> your password :  {{user[2]}}</h2>
+                {%endfor%}
+
+
+                <br><br>
+                <a href="{{ url_for('logout') }}"> logout </a>
+
+
             </div>
-          {%endfor%}
-        {%endif%}
-      {% endwith %}
-      {% block content %}{%endblock%}
-
-
-
-      <h1> your profile page </h1>
-
-      {%for user in user_details%}
-      <p> your name is {{user[0]}} </p>
-      <p> your email is :  {{user[1]}} </p>
-      <p> your password is :  {{user[2]}}</p>
-      {%endfor%}
-
-
-  </body>
+        </div>
+    </body>
 </html>
