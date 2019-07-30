@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, redirect, request, session
+from flask import Flask, render_template, url_for, flash, redirect, request, session,Blueprint, make_response
 from flask_mysqldb import MySQL
 import yaml
 import re
@@ -6,7 +6,12 @@ from flask_mail import Mail, Message
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import os
 import re
+import logging
+from werkzeug.utils import secure_filename
+#from pydrop.config import config
 
+#variables for browser and host information
+browser_and_agent_info, browser_name, host, host_url = 0 ,0, 0, 0
 
 def is_valid_email(email):
     if len(email) > 7:
@@ -74,6 +79,14 @@ app.config['SECRET_KEY']  = '5f3e5b6f4c33f8e5ef8b9c24187b3f1c' #any random token
 @app.route('/', methods=['GET','POST'])
 @app.route('/login', methods=['GET','POST'])
 def login():
+    global browser_and_agent_info, browser_name, host, host_url
+    browser_and_agent_info = request.user_agent
+    browser_name = request.user_agent.browser
+    host = request.host
+    host_url=request.host_url
+
+    print('browser_and_agent_info=' + str(browser_and_agent_info), 'browser_name = '+str(browser_name), 'host=' + str(host), 'host_url='+ str(host_url))
+
     if request.method =='POST':
         user_details = request.form
         email = user_details['email']
@@ -120,6 +133,8 @@ def logout():
 
 @app.route('/profile')
 def profile():
+    global browser_and_agent_info, browser_name, host, host_url
+    server_browser_details = [browser_and_agent_info, browser_name, host, host_url]
     ret=get_session()
     if ret != 0:
         cur = mysql.connection.cursor()
@@ -127,7 +142,7 @@ def profile():
         user_details = cur.fetchall()
         mysql.connection.commit()
         cur.close()
-        return render_template('profile.html', user_details=user_details)
+        return render_template('profile.html', user_details=user_details, server_browser_details = server_browser_details)
     else:
         return redirect(url_for('login'))
 
@@ -200,7 +215,9 @@ def request_password(token):
 
     return render_template('request_password.html')
 
-
+@app.route('/upload', methods=['GET','POST'])
+def upload():
+    return render_template('large_file_upload.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

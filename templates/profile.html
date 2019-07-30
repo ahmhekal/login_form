@@ -17,6 +17,7 @@
 
 
         <div class="container">
+          <h1>Your profile page</h1>
 
             <div class="box" >
 
@@ -32,13 +33,22 @@
                     {% block content %}{%endblock%}
 
 
-                <h1>Your profile page</h1>
-                <br>
                 {%for user in user_details%}
                 <h2> your name : {{user[0]}} </h2>
                 <h2> your email :  {{user[1]}} </h2>
                 <h2> your password :  {{user[2]}}</h2>
                 {%endfor%}
+
+
+
+                <h1>browser and server details</h1>
+                <br>
+                <h2> Browser : {{server_browser_details[1]}} </h2>
+                <h2> Host :  {{server_browser_details[2]}}</h2>
+
+
+
+
 
 
                 <br><br>
