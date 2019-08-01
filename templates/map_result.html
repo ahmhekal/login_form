@@ -1,0 +1,16 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages%}
+    {%for category, message in messages%}
+      <h2>
+        {{message}}
+      </h2>
+    {%endfor%}
+  {%endif%}
+{% endwith %}
+{% block content %}{%endblock%}
+
+
+<h1> distance is : {{dist}} km <h2>
+  <br>
+  <a href="{{ url_for('map') }}"> try again </a>
+  <a href="{{ url_for('profile') }}"> my profile / login </a>

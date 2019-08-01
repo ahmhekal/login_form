@@ -1,0 +1,35 @@
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script  defer src="https://maps.googleapis.com/maps/api/js?libraries=places&language=en&key=AIzaSyCy_YE6dqdeO4Mta2tH9L0Su6HyDbbPtN4"  type="text/javascript"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+
+<body>
+  <a href="{{ url_for('profile') }}"> my profile / login </a>
+
+    <div class="container">
+        <div class="row">
+              <div class="jumbotron">
+                  <h1>Calculate the Distance Between two Addresses</h1>
+              </div>
+              <div class="col-md-6">
+                  <form id="distance_form" method="POST" action="">
+                        <div class="form-group">
+                            <label>First place: </label>
+                            <input  id="from_places" class="form-control" name="source" placeholder="Enter a location" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Second place: </label>
+                            <input  id="to_places" class="form-control" name="destination" placeholder="Enter a location" />
+                        </div>
+
+                        <input type="submit" value="Calculate" class="btn btn-primary"/>
+                  </form>
+              </div>
+        </div>
+    </div>
+</body>
+</html>

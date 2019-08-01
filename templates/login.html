@@ -3,11 +3,12 @@
         <title>login</title>
         <meta charset="utf-8">
 
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
     </head>
     <body>
 
+      <a href="{{ url_for('map') }}"> try map distance calculator </a>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages%}
@@ -21,6 +22,7 @@
       {% block content %}{%endblock%}
 
 
+
         <div class="container">
             <form class="box" method="POST" action="">
                 <h1>login Page</h1>
@@ -32,6 +34,10 @@
                 <br><br>
                 <small>
                     Forget Password? <a class="ml-2" href="/reset_password">reset now</a>
+                </small>
+                <br>
+                <small>
+                    Need an account? <a class="ml-2" href="/register">register now</a>
                 </small>
 
 
