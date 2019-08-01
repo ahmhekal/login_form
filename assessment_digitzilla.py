@@ -175,6 +175,21 @@ def register():
         name = user_details['name']
         password = user_details['password']
 
+
+        if not is_valid_email(email):
+            flash(f'You entered an invalid form of email, it must be like \' example@example.example \' ')
+            return redirect(url_for('register'))
+
+        if not is_valid_password(name):
+            flash(f'You entered an invalid password')
+            return redirect(url_for('register'))
+
+        if not is_valid_password(password):
+            flash(f'You entered an invalid password')
+            return redirect(url_for('register'))
+
+
+
         try :
             cur = mysql.connection.cursor()
             cur.execute("INSERT INTO users (email, name, password )VALUES( %s, %s,%s );", (email, name, password))

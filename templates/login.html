@@ -9,6 +9,7 @@
     <body>
 
       <a href="{{ url_for('map') }}"> try map distance calculator </a>
+      <br>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages%}
@@ -35,6 +36,7 @@
                 <small>
                     Forget Password? <a class="ml-2" href="/reset_password">reset now</a>
                 </small>
+                <br>
                 <br>
                 <small>
                     Need an account? <a class="ml-2" href="/register">register now</a>

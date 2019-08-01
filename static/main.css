@@ -79,7 +79,6 @@ margin-left: 30px;
 padding: 5px;
 width: 335px;
 border-radius: 7px;
-text-transform: capitalize;
 font-size: 15px;
 background-color: rgba(255,255,255,.9);
 font-family: Arial,Tahoma;
@@ -95,7 +94,6 @@ border-radius: 20px;
 background-color:rgba(57,87,34,.5) ;
 border: 2px solid #ccc ;
 color: #fff;
-text-transform: capitalize;
 font-size: 15px
 }
 
@@ -107,6 +105,5 @@ border-radius: 20px;
 background-color:rgba(57,87,34,.5) ;
 border: 2px solid #ccc ;
 color: #fff;
-text-transform: capitalize;
 font-size: 20px
 }
