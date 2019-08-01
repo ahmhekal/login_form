@@ -9,7 +9,7 @@ import requests
 from math import cos, asin, sqrt
 
 #API key for google maps
-API_KEY="AIzaSyBVQAVS4Fkx46IuvQy6qDA5KrMjB5kSKFc"
+API_KEY=""
 
 #variables for browser and host information
 browser_and_agent_info, browser_name, host, host_url = 0 ,0, 0, 0
